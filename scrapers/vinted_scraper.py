@@ -1,7 +1,7 @@
 import requests
 import json
 
-def search_vinted(suchbegriff: str, anzahl: int = 20) -> list:
+def search_vinted(suchbegriff: str, anzahl: int = 50) -> list:
     
     session = requests.Session()
     
