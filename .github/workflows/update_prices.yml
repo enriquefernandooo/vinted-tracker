@@ -1,0 +1,28 @@
+name: Daily Price Update
+
+on:
+  schedule:
+    - cron: '0 7 * * *'  # 9 Uhr deutsche Zeit (UTC+2)
+  workflow_dispatch:       # manuell auslösbar zum Testen
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run updater
+        env:
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python updater.py
