@@ -102,9 +102,10 @@ with tab2:
                 col2.metric("Ziel VK", f"{artikel['ziel_verkaufspreis']}€" if artikel['ziel_verkaufspreis'] else "–")
                 col3.metric("Verkaufspreis", f"{artikel['verkaufspreis']}€" if artikel['verkaufspreis'] else "Noch aktiv")
 
-                if artikel['status'] == 'aktiv':
-                    col1, col2 = st.columns(2)
-                    with col1:
+                col1, col2, col3 = st.columns(3)
+
+                with col1:
+                    if artikel['status'] == 'aktiv':
                         if st.button("Als verkauft markieren", key=artikel['id']):
                             vk_preis = st.number_input("Verkaufspreis (€)", key=f"vk_{artikel['id']}", min_value=0.0, step=0.5)
                             supabase.table("inventory").update({
@@ -113,7 +114,28 @@ with tab2:
                             }).eq("id", artikel['id']).execute()
                             st.success("Gespeichert!")
                             st.rerun()
-                    with col2:
-                        if st.button("Löschen", key=f"del_{artikel['id']}"):
-                            supabase.table("inventory").delete().eq("id", artikel['id']).execute()
-                            st.rerun()
+
+                with col2:
+                    if st.button("Preisverlauf", key=f"hist_{artikel['id']}"):
+                        if st.session_state.get(f"show_hist_{artikel['id']}"):
+                            st.session_state[f"show_hist_{artikel['id']}"] = False
+                        else:
+                            st.session_state[f"show_hist_{artikel['id']}"] = True
+
+                with col3:
+                    if st.button("Löschen", key=f"del_{artikel['id']}"):
+                        supabase.table("inventory").delete().eq("id", artikel['id']).execute()
+                        st.rerun()
+
+                if st.session_state.get(f"show_hist_{artikel['id']}"):
+                    historie = supabase.table("preis_historie").select("*").eq("artikel_id", artikel['id']).order("datum").execute()
+                    historie_data = historie.data
+
+                    if not historie_data:
+                        st.info("Noch keine Preishistorie – kommt ab morgen 9 Uhr.")
+                    else:
+                        import pandas as pd
+                        df = pd.DataFrame(historie_data)
+                        df['datum'] = (pd.to_datetime(df['datum']) + pd.Timedelta(hours=2)).dt.strftime('%d.%m %H:%M')
+                        st.line_chart(df.set_index('datum')['empfohlener_vk'])
+                        st.caption(f"Basierend auf täglich aktualisierten Vinted-Listings")
