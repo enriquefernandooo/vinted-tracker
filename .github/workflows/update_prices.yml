@@ -2,8 +2,14 @@ name: Daily Price Update
 
 on:
   schedule:
-    - cron: '0 7 * * *'  # 9 Uhr deutsche Zeit (UTC+2)
-  workflow_dispatch:       # manuell auslösbar zum Testen
+    - cron: '0 * * * *'    # jede Stunde → Preise sammeln
+    - cron: '0 7 * * *'    # 9 Uhr deutsch → Tages-VK berechnen
+  workflow_dispatch:
+    inputs:
+      modus:
+        description: 'sammeln oder tagesvk'
+        required: true
+        default: 'sammeln'
 
 jobs:
   update:
@@ -25,4 +31,7 @@ jobs:
         env:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
-        run: python updater.py
+        run: |
+          if [ "${{ github.event.inputs.modus }}" = "tagesvk" ]; then
+            python updater.py tagesvk
+          elif [ "${{ github.event_name }}" = "schedule" ] && [ "$(date -u
