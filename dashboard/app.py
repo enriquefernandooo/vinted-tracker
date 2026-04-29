@@ -103,11 +103,17 @@ with tab2:
                 col3.metric("Verkaufspreis", f"{artikel['verkaufspreis']}€" if artikel['verkaufspreis'] else "Noch aktiv")
 
                 if artikel['status'] == 'aktiv':
-                    if st.button("Als verkauft markieren", key=artikel['id']):
-                        vk_preis = st.number_input("Verkaufspreis (€)", key=f"vk_{artikel['id']}", min_value=0.0, step=0.5)
-                        supabase.table("inventory").update({
-                            "status":           "verkauft",
-                            "verkaufspreis":    vk_preis,
-                        }).eq("id", artikel['id']).execute()
-                        st.success("Gespeichert!")
-                        st.rerun()
+                    col1, col2 = st.columns(2)
+                    with col1:
+                        if st.button("Als verkauft markieren", key=artikel['id']):
+                            vk_preis = st.number_input("Verkaufspreis (€)", key=f"vk_{artikel['id']}", min_value=0.0, step=0.5)
+                            supabase.table("inventory").update({
+                                "status":        "verkauft",
+                                "verkaufspreis": vk_preis,
+                            }).eq("id", artikel['id']).execute()
+                            st.success("Gespeichert!")
+                            st.rerun()
+                    with col2:
+                        if st.button("Löschen", key=f"del_{artikel['id']}"):
+                            supabase.table("inventory").delete().eq("id", artikel['id']).execute()
+                            st.rerun()
