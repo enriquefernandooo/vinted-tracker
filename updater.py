@@ -56,7 +56,8 @@ def berechne_tages_vk():
         print("Keine aktiven Artikel gefunden.")
         return
 
-    vor_24h = (datetime.now(datetime.UTC) - timedelta(hours=24)).isoformat()
+    from datetime import timezone
+    vor_24h = (datetime.now(timezone.utc) - timedelta(hours=24)).isoformat()
 
     for artikel in artikel_liste:
         print(f"Berechne Tages-VK für: {artikel['artikel']}...")
