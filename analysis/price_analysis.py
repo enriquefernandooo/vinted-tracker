@@ -10,11 +10,31 @@ def analyse_preise(suchbegriff: str, einkaufspreis: float) -> dict:
         print("Keine Artikel gefunden.")
         return {}
     
-    preise = [a["preis"] for a in artikel if a["preis"] > 0]
+    preise_alle = [a["preis"] for a in artikel if a["preis"] > 0]
     
-    if not preise:
-        print("Keine Preise gefunden.")
+    if not preise_alle:
         return {}
+    
+    # Erst Median aus allen Preisen berechnen
+    median_roh = statistics.median(preise_alle)
+    
+    # Filter 1: Favoriten >= 3
+    # Filter 2: Preis innerhalb ±40% vom Median
+    gefiltert = [
+        a for a in artikel
+        if a["preis"] > 0
+        and a["favoriten"] >= 5
+        and median_roh * 0.6 <= a["preis"] <= median_roh * 1.4
+    ]
+    
+    print(f"Vor Filter: {len(artikel)} Artikel")
+    print(f"Nach Filter: {len(gefiltert)} Artikel")
+    
+    if len(gefiltert) < 5:
+        print("Zu wenige Artikel nach Filter – nehme ungefilterte Daten")
+        gefiltert = [a for a in artikel if a["preis"] > 0]
+    
+    preise = [a["preis"] for a in gefiltert]
     
     median        = statistics.median(preise)
     durchschnitt  = statistics.mean(preise)
@@ -57,5 +77,5 @@ def print_analyse(ergebnis: dict):
 
 
 if __name__ == "__main__":
-    ergebnis = analyse_preise("Nike Air Force 42", einkaufspreis=20.0)
+    ergebnis = analyse_preise("Barbour Steppjacke L gut", einkaufspreis=16.0)
     print_analyse(ergebnis)
