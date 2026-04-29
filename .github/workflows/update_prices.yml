@@ -2,7 +2,7 @@ name: Daily Price Update
 
 on:
   schedule:
-    - cron: '0 * * * *'    # jede Stunde - sammeln
+    - cron: '20 * * * *'    # jede Stunde - sammeln
     - cron: '0 21 * * *'   # 23 Uhr Deutschland - tagesvk
   workflow_dispatch:
     inputs:
