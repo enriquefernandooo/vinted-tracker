@@ -32,6 +32,12 @@ jobs:
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
         run: |
-          if [ "${{ github.event.inputs.modus }}" = "tagesvk" ]; then
+          MODUS="${{ github.event.inputs.modus }}"
+          STUNDE=$(date -u +%H)
+          if [ "$MODUS" = "tagesvk" ]; then
             python updater.py tagesvk
-          elif [ "${{ github.event_name }}" = "schedule" ] && [ "$(date -u
+          elif [ "$MODUS" = "" ] && [ "$STUNDE" = "07" ]; then
+            python updater.py tagesvk
+          else
+            python updater.py sammeln
+          fi
