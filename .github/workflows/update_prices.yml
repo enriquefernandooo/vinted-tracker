@@ -3,7 +3,7 @@ name: Daily Price Update
 on:
   schedule:
     - cron: '0 * * * *'    # jede Stunde → Preise sammeln
-    - cron: '0 7 * * *'    # 9 Uhr deutsch → Tages-VK berechnen
+    - cron: '0 20 * * *'    # 9 Uhr deutsch → Tages-VK berechnen
   workflow_dispatch:
     inputs:
       modus:
